@@ -6,44 +6,30 @@ import {
   Input,
   FormControl,
   FormLabel,
-  FormErrorMessage,
-  FormHelperText,
 } from "@chakra-ui/react"
-
-const getLen = async (data) =>{
-    const len = await axios
-      .get("http://localhost:8089/board/list")
-      .then((data) => setData({ numId: data.len }))
-    return len
-}
-
-
-
 
 
 
 const loginForm = () => {
   const [data, setData] = useState({
-    numId: getLen+1,
-    username : "",
+    email: "",
     password : "",
-    title : "",
-    context: "",
-    date: "",
+    nickname: "",
+    mbti: "",
+    profileImg: "",
   })
-  const { numId, username, password, title, context, date } = data
 
   const onSubmit = async (data) => {
       setData({
-          username : data.username,
-          password : data.password,
-            title : data.title,
-            context: data.context,
-            data : Date()
+          email: data.email,
+          password: data.password,
+          nickname: data.nickname,
+          mbti: data.mbti,
+          profileImg: data.profileImg,
       })
       console.log(data)
 
-      const req = await axios.post("/board/write", data)
+      const req = await axios.post("/players/signup", data)
       .catch((err)=>console.log(err))
   }
 
@@ -54,25 +40,22 @@ const loginForm = () => {
   } = useForm()
   return (
     <div>
-      {/* <form onSubmit={handleSubmit(onSubmit)}>
-            <input type="text" placeholder="=First Name" {...register("firstname")} />
-            <input type="submit"/>
-        </form> */}
-      <Box backgroundColor="lightpink">
+      <Box backgroundColor="">
         <Center w="300px">
-          <FormControl size="xs" onSubmit={handleSubmit(onSubmit)}>
+          <FormControl size="xs">
             <Box padding="5px" border="solid" borderRadius="2%">
               <form onSubmit={handleSubmit(onSubmit)}>
                 <FormLabel size="xs" htmlFor="username">
-                  게시판 작성
+                  회원가입 작성
                 </FormLabel>
                 <Input
                   variant="outline"
                   size="xs"
-                  id="username"
-                  placeholder="이름을 입력하세요"
-                  {...register("username", {
-                    required: "이름을 입력하세요l",
+                  id="email"
+                  defaultValue="diasm2@gmail.com"
+                  placeholder="이메일을 입력하세요"
+                  {...register("email", {
+                    required: "이메일을 입력하세요",
                     minLength: 3,
                     MaxLength: 15,
                   })}
@@ -82,6 +65,7 @@ const loginForm = () => {
                   variant="outline"
                   size="xs"
                   id="Password"
+                  defaultValue="123456"
                   placeholder="암호를 입력하세요"
                   type="password"
                   {...register("password", {
@@ -91,25 +75,40 @@ const loginForm = () => {
                   })}
                 />
                 <Input
-                  variant="flushed"
+                  variant="outline"
                   size="xs"
-                  id="title"
-                  placeholder="제목을 입력하세요"
-                  type="title"
-                  {...register("title", {
-                    required: "제목을 입력하세요",
+                  id="nickname"
+                  placeholder="nickname을 입력하세요"
+                  defaultValue="하하"
+                  // type="textbox"
+                  {...register("nickname", {
+                    required: "닉네임을 입력하세요",
                     minLength: 1,
                     MaxLength: 100,
                   })}
                 />
                 <Input
-                  variant="flushed"
+                  variant="outline"
                   size="xs"
-                  id="context"
-                  placeholder="내용을 입력하세요"
-                  type="context"
-                  {...register("context", {
-                    required: "내용을 입력하세요",
+                  id="mbti"
+                  placeholder="mbti을 입력하세요"
+                  defaultValue="ISTJ"
+                  // type="textbox"
+                  {...register("mbti", {
+                    required: "mbti을 입력하세요",
+                    minLength: 1,
+                    MaxLength: 100,
+                  })}
+                />
+                <Input
+                  variant="outline"
+                  size="xs"
+                  id="profileImg"
+                  placeholder="사진을 입력하세요"
+                  defaultValue="img"
+                  // type="context"
+                  {...register("profileImg", {
+                    required: "사진을 입력하세요",
                     MaxLength: 2000,
                   })}
                 />
