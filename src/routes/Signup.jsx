@@ -5,6 +5,7 @@ import axios from "axios"
 import { Input, FormControl, FormLabel } from "@chakra-ui/react"
 import Header from "../components/Header"
 import { getWithExpiry } from "../modules/localStorageControl"
+import authService from "../service/auth.service"
 
 const mbtiList = [
   ["ISTJ", "청렴한 논리주의자"],
@@ -43,9 +44,13 @@ const signup = () => {
       profileImg: data.profileImg,
     })
 
-    await axios
-      .post("/api/players/signup", data)
-      .catch((err) => console.log(err))
+    await authService
+      .register(email, password, nickname, mbti, profileImg)
+      .catch((err) => console.log(err.message))
+
+    // await axios
+    //   .post("/api/players/signup", data)
+    //   .catch((err) => console.log(err))
   }
 
   const onSubmitDupNickname = async (nickname) => {

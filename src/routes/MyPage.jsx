@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react"
 import Header from "../components/Header"
-import { useForm } from "react-hook-form"
+import UserService from "../service/user.service"
 import { setWithExpiry, getWithExpiry } from "../modules/localStorageControl"
-import { Box, Center, Button, Text, Grid, GridItem } from "@chakra-ui/react"
+import { Box, Center, Text, Grid, GridItem } from "@chakra-ui/react"
 import axios from "axios"
-import { useCookies, Cookies, withCookies } from "react-cookie"
+import { useCookies, Cookies } from "react-cookie"
+
 const cookie = new Cookies()
 
 const mypage = () => {
@@ -16,32 +17,22 @@ const mypage = () => {
     profileImg: "",
   })
 
-  function MyComponent() {
-    const hello = cookie.get("Authorization")
-    setCookie("Authorization2", "wlekjflwkejf", { path: "/" })
-    const hello2 = getCookie("Authorization")
-    console.log(hello)
-
-    return hello
-  }
-  const NewComponent = withCookies(MyComponent)
-  NewComponent.WrappedComponent === MyComponent
-
   useEffect(() => {
-    MyComponent()
     loadProfile()
   }, [])
 
   const loadProfile = async () => {
-    const token = getWithExpiry("access")
-
-    const header = {
-      headers: {
-        Authorization: token ? token : cookieToken,
-      },
-    }
-    const req = await axios.get("/api/players/mypage", header)
-    setData(req.data.profile)
+    const res = await UserService.getMypage()
+    const { email, nickname, mbti, profileImg } = res.data.profile
+    console.log(email, nickname, mbti, profileImg)
+    
+    setData({
+      email,
+      nickname,
+      mbti,
+      profileImg,
+    })
+    console.log(res)
   }
 
   return (

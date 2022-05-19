@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form"
 import { Box, Center, Button } from "@chakra-ui/react"
 import { useControllableState } from "@chakra-ui/react"
 import { setWithExpiry, getWithExpiry } from "../modules/localStorageControl"
+import authService from "../service/auth.service"
 import Header from "../components/Header"
 import axios from "axios"
 import {
@@ -23,81 +24,14 @@ const signin = () => {
 
   // 로그인 정보를 서버에 전송하고, 성공시 token을 받아온다.
   const onSubmit = async (data) => {
-    // console.log(register(email))
     setData({
       email: data.email,
       password: data.password,
     })
 
-    const req = await axios.post("/api/players/signin", data)
-    console.log(req)
-
-    const accessToken = req.headers.authorization
-    const refreshToken = req.headers.refresh
-
-    console.log(refreshToken, accessToken)
-    setWithExpiry("access", accessToken, 1000000)
-    setWithExpiry("refresh", refreshToken, 603800)
-
-    // setToken(token)
-    // console.log()
-    // cookie.set("token", token)
+    const req1 = await authService.login(data.email, data.password)
   }
 
-  const axiosApiInstance = axios.create()
-
-  axiosApiInstance.interceptors.request.use(
-    async (config) => {
-      const userInfo = getWithExpiry("refresh")
-      const accessToken = userInfo ? JSON.parse(userInfo).accessToken : null
-      config.headers = {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: application.json,
-      }
-      return config
-    },
-    (error) => {
-      Promise.reject(error)
-    }
-  )
-
-  axiosApiInstance.interceptors.response.use(
-    (response) => {
-      return response
-    },
-    async function (error) {
-      const originalRequest = error.config
-      if (error.response.status === 401 && !originalRequest._retry) {
-        console.log("expired token")
-        originalRequest._retry = true
-        const userInfo = getWithExpiry("refresh")
-        const accessToken = userInfo ? JSON.parse(userInfo).accessToken : null
-        if (userInfo) {
-          originalRequest.headers["Authorization"] = "Bearer " + accessToken
-          userInfo.accessToken = accessToken
-          setWithExpiry("access", JSON.stringify(userInfo))
-        }
-        return axios(originalRequest)
-      }
-      return Promise.reject(error)
-    }
-  )
-
-  const auth = async () => {
-    const token = getWithExpiry("refresh")
-    if (!token) {
-      alert("로그인이 필요합니다.")
-      return null
-    }
-    const header = {
-      Authorization: token,
-    }
-
-    const req = await axios.get("/api/players/auth", header)
-    setWithExpiry("access", req.headers.access.split(" ")[1], 7200)
-  }
-
-  const [value, setValue] = useControllableState({ defaultValue: false })
 
   const {
     register,
@@ -106,7 +40,7 @@ const signin = () => {
   } = useForm()
   return (
     <div>
-      <Header/>
+      <Header />
       <Box margin="30px">
         <Center w="300px">
           <FormControl size="xs">
@@ -151,9 +85,9 @@ const signin = () => {
                   로그인
                 </Button>
               </form>
-              <Button size="xs" borderRadius="md" onClick={auth}>
+              {/* <Button size="xs" borderRadius="md" onClick={auth}>
                 토큰확인
-              </Button>
+              </Button> */}
             </Box>
           </FormControl>
         </Center>
