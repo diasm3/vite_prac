@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form"
 import { Box, Center, Button, Flex } from "@chakra-ui/react"
 import axios from "axios"
 import { Input, FormControl, FormLabel } from "@chakra-ui/react"
+import Header from "../components/Header"
+import { getWithExpiry } from "../modules/localStorageControl"
 
 const mbtiList = [
   ["ISTJ", "청렴한 논리주의자"],
@@ -23,7 +25,7 @@ const mbtiList = [
   ["ENTJ", "대담한 통솔자"],
 ]
 
-const loginForm = () => {
+const signup = () => {
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -41,18 +43,26 @@ const loginForm = () => {
       profileImg: data.profileImg,
     })
 
-    const req = await axios
-      .post("/players/signup", data)
+    await axios
+      .post("/api/players/signup", data)
       .catch((err) => console.log(err))
   }
 
-  const onSubmitDupNickname= async (nickname) => {
+  const onSubmitDupNickname = async (nickname) => {
     const req = await axios
-      .post("/players/dupNickname", nickname)
+      .post("/api/players/dupNickname", { nickname })
       .catch((err) => console.log(err))
+
     return req
   }
 
+  const onSubmitDupemail = async (email) => {
+    const req = await axios
+      .post("/api/players/dupEmail", { email })
+      .catch((err) => console.log(err))
+
+    return req
+  }
   const {
     register,
     handleSubmit,
@@ -61,7 +71,8 @@ const loginForm = () => {
   } = useForm()
   return (
     <div>
-      <Box backgroundColor="">
+      <Header />
+      <Box backgroundColor="" margin="30px">
         <Center w="300px">
           <FormControl size="xs">
             <Box padding="5px" border="solid" borderRadius="2%">
@@ -69,19 +80,32 @@ const loginForm = () => {
                 <FormLabel size="xs" htmlFor="username">
                   회원가입 작성
                 </FormLabel>
-                <Input
-                  variant="outline"
-                  size="xs"
-                  id="email"
-                  defaultValue="diasm5@gmail.com"
-                  placeholder="이메일을 입력하세요"
-                  {...register("email", {
-                    required: "이메일을 입력하세요",
-                    minLength: 3,
-                    MaxLength: 15,
-                  })}
-                  type="text"
-                />
+                <Box>
+                  <Flex>
+                    <Input
+                      variant="outline"
+                      size="xs"
+                      id="email"
+                      defaultValue="diasm5@gmail.com"
+                      placeholder="이메일을 입력하세요"
+                      {...register("email", {
+                        required: "이메일을 입력하세요",
+                        minLength: 3,
+                        MaxLength: 15,
+                      })}
+                      type="text"
+                    />
+                    <Button
+                      size="xs"
+                      borderRadius="md"
+                      onClick={() => {
+                        onSubmitDupemail(watch("email"))
+                      }}
+                    >
+                      중복확인
+                    </Button>
+                  </Flex>
+                </Box>
                 <Input
                   variant="outline"
                   size="xs"
@@ -114,7 +138,7 @@ const loginForm = () => {
                       size="xs"
                       borderRadius="md"
                       onClick={() => {
-                        onSubmitDupNickname(watch('nickname'))
+                        onSubmitDupNickname(watch("nickname"))
                       }}
                     >
                       중복확인
@@ -174,4 +198,4 @@ const loginForm = () => {
   )
 }
 
-export default loginForm
+export default signup

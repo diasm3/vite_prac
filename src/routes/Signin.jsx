@@ -1,9 +1,9 @@
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Box, Center, Button } from "@chakra-ui/react"
-import { useControllableProp, useControllableState } from "@chakra-ui/react"
-import Cookie from "universal-cookie"
-const cookie = new Cookie()
+import { useControllableState } from "@chakra-ui/react"
+import { setWithExpiry, getWithExpiry } from "../modules/localStorageControl"
+import Header from "../components/Header"
 import axios from "axios"
 import {
   Input,
@@ -12,8 +12,9 @@ import {
   FormErrorMessage,
   FormHelperText,
 } from "@chakra-ui/react"
+import jwtDecode from "jwt-decode"
 
-const loginForm = () => {
+const signin = () => {
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -27,25 +28,73 @@ const loginForm = () => {
       email: data.email,
       password: data.password,
     })
-    console.log(data)
 
-    const req = await axios.post("/players/signin", data)
-    const token = req.headers.authorization.split(" ")[1]
-    setToken(token)
-    console.log()
-    cookie.set("token", token)
+    const req = await axios.post("/api/players/signin", data)
+    console.log(req)
+
+    const accessToken = req.headers.authorization
+    const refreshToken = req.headers.refresh
+
+    console.log(refreshToken, accessToken)
+    setWithExpiry("access", accessToken, 1000000)
+    setWithExpiry("refresh", refreshToken, 603800)
+
+    // setToken(token)
+    // console.log()
+    // cookie.set("token", token)
   }
 
-  const auth = async () => {
-    console.log("hellosubmit")
-    const header = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const axiosApiInstance = axios.create()
+
+  axiosApiInstance.interceptors.request.use(
+    async (config) => {
+      const userInfo = getWithExpiry("refresh")
+      const accessToken = userInfo ? JSON.parse(userInfo).accessToken : null
+      config.headers = {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: application.json,
+      }
+      return config
+    },
+    (error) => {
+      Promise.reject(error)
     }
-    const req = await axios.get("/players/auth", header)
-    console.log(req)
-    setToken(req.headers.authorization.split(" ")[1])
+  )
+
+  axiosApiInstance.interceptors.response.use(
+    (response) => {
+      return response
+    },
+    async function (error) {
+      const originalRequest = error.config
+      if (error.response.status === 401 && !originalRequest._retry) {
+        console.log("expired token")
+        originalRequest._retry = true
+        const userInfo = getWithExpiry("refresh")
+        const accessToken = userInfo ? JSON.parse(userInfo).accessToken : null
+        if (userInfo) {
+          originalRequest.headers["Authorization"] = "Bearer " + accessToken
+          userInfo.accessToken = accessToken
+          setWithExpiry("access", JSON.stringify(userInfo))
+        }
+        return axios(originalRequest)
+      }
+      return Promise.reject(error)
+    }
+  )
+
+  const auth = async () => {
+    const token = getWithExpiry("refresh")
+    if (!token) {
+      alert("로그인이 필요합니다.")
+      return null
+    }
+    const header = {
+      Authorization: token,
+    }
+
+    const req = await axios.get("/api/players/auth", header)
+    setWithExpiry("access", req.headers.access.split(" ")[1], 7200)
   }
 
   const [value, setValue] = useControllableState({ defaultValue: false })
@@ -57,7 +106,8 @@ const loginForm = () => {
   } = useForm()
   return (
     <div>
-      <Box backgroundColor="lightgrey">
+      <Header/>
+      <Box margin="30px">
         <Center w="300px">
           <FormControl size="xs">
             <Box padding="5px" border="solid" borderRadius="2%">
@@ -112,4 +162,4 @@ const loginForm = () => {
   )
 }
 
-export default loginForm
+export default signin
