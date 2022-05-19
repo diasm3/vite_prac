@@ -7,8 +7,7 @@ import react from "@vitejs/plugin-react"
 export default defineConfig({
   plugins: [
     react(),
-    // VitePWA({
-    //   includeAssets: [
+    // VitePWA({ //   includeAssets: [
     //     "favicon.svg",
     //     "favicon.ico",
     //     "robots.txt",
@@ -47,7 +46,7 @@ export default defineConfig({
     server: { https: true },
     port: 3005,
     proxy: {
-      "/players": {
+      "/api": {
         target: " http://localhost:3000", // back-end server IP address 뒤에 /는 빼야함
         changeOrigin: true,
       },
