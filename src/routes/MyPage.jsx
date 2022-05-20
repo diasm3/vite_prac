@@ -23,15 +23,11 @@ const mypage = () => {
 
   const loadProfile = async () => {
     const res = await UserService.getMypage()
+    console.log(res.data)
     const { email, nickname, mbti, profileImg } = res.data.profile
     console.log(email, nickname, mbti, profileImg)
     
-    setData({
-      email,
-      nickname,
-      mbti,
-      profileImg,
-    })
+    setData({ email, nickname, mbti, profileImg, })
     console.log(res)
   }
 

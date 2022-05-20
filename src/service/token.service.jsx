@@ -11,21 +11,24 @@ class TokenService {
     // const user = JSON.parse(localStorage.getItem("accesToken"))
     return user
   }
-  updateLocalAccessToken(token) {
+  updateLocalAccessToken(newToken) {
     let accessToken = JSON.parse(localStorage.getItem("accessToken"))
-    console.log(accessToken)
-    accessToken.accessToken = token
-    localStorage.setItem("accessToken", JSON.stringify(accessToken))
+
+    if (!accessToken) return this.setAccessToken(newToken)
+
+    accessToken.accessToken = newToken
+    setWithExpiry("accessToken", JSON.stringify(accessToken), 3000000)
+    // localStorage.setItem("accessToken", JSON.stringify(accessToken))
   }
   getUser() {
     return JSON.parse(localStorage.getItem("user"))
   }
   setAccessToken(accessToken) {
-    setWithExpiry("accessToken", accessToken, 7200)
+    setWithExpiry("accessToken", accessToken, 1000 * 60 * 120)
     // localStorage.setItem("accessToken", JSON.stringify(accessToken))
   }
   setRefreshToken(refreshToken) {
-    setWithExpiry("refreshToken", refreshToken, 603800)
+    setWithExpiry("refreshToken", refreshToken, 1000 * 60 * 24 * 12)
     // localStorage.setItem("refreshToken", JSON.stringify(refreshToken))
   }
   removeUser(name) {
