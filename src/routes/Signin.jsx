@@ -1,23 +1,15 @@
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Box, Center, Button } from "@chakra-ui/react"
-import { useControllableState } from "@chakra-ui/react"
-import { setWithExpiry, getWithExpiry } from "../modules/localStorageControl"
 import authService from "../service/auth.service"
 import Header from "../components/Header"
-import axios from "axios"
-import {
-  Input,
-  FormControl,
-  FormLabel,
-} from "@chakra-ui/react"
+import { Input, FormControl, FormLabel } from "@chakra-ui/react"
 
 const signin = () => {
   const [data, setData] = useState({
     email: "",
     password: "",
   })
-  const [token, setToken] = useState(null)
 
   // 로그인 정보를 서버에 전송하고, 성공시 token을 받아온다.
   const onSubmit = async (data) => {
@@ -26,9 +18,8 @@ const signin = () => {
       password: data.password,
     })
 
-    const req1 = await authService.login(data.email, data.password)
+    await authService.login(data.email, data.password)
   }
-
 
   const {
     register,

@@ -2,15 +2,17 @@ import axios from "axios"
 import { getWithExpiry } from "../modules/localStorageControl"
 import TokenService from "./token.service"
 const instance = axios.create({
-  baseURL: "http://localhost:3000",
+  // baseURL: "/",
   headers: {
-    "Content-Type": "application/json",
+    Accept: "/",
+    "content-type": "application/json;charset=UTF-8",
+    "Access-Control-Allow-Origin": "*",
+    Authorization: getWithExpiry("accessToken"),
   },
 })
 instance.interceptors.request.use(
   (config) => {
     const token = TokenService.getLocalAccessToken()
-    console.log(token)
     if (token) {
       config.headers["accesstoken"] = token // for Node.js Express back-end
     }

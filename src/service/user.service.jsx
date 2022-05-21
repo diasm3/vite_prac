@@ -1,27 +1,29 @@
 import api from "./api"
 import { getWithExpiry } from "../modules/localStorageControl"
 
-const headers = {
-  headers: {
-    Authorization: getWithExpiry("accessToken"),
-  },
-}
+// const headers = {
+//   headers: {
+//     Authorization: getWithExpiry("accessToken"),
+//   },
+// }
+
 const getMypage = () => {
-  return api.get("/api/players/mypage", headers)
+  return api.get("/api/players/mypage")
 }
-const getUserBoard = () => {
-  return api.get("/test/user")
+
+const playerEdit = async (nickname, profileImg) => {
+  try {
+    await axios.patch("/api/players/edit", {
+      nickname,
+      profileImg,
+    })
+  } catch (err) {
+    console.log(err.message)
+  }
 }
-const getModeratorBoard = () => {
-  return api.get("/test/mod")
-}
-const getAdminBoard = () => {
-  return api.get("/test/admin")
-}
+
 const UserService = {
   getMypage,
-  getUserBoard,
-  getModeratorBoard,
-  getAdminBoard,
+  playerEdit,
 }
 export default UserService

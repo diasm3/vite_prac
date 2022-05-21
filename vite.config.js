@@ -47,13 +47,9 @@ export default defineConfig({
     port: 3005,
     proxy: {
       "/api": {
-        target: " http://localhost:3000", // back-end server IP address 뒤에 /는 빼야함
+        target: "http://15.164.213.175:3000", // back-end server IP address 뒤에 /는 빼야함
         changeOrigin: true,
       },
-      // "/": {
-      //   target: " http://localhost:3005", // back-end server IP address 뒤에 /는 빼야함
-      //   changeOrigin: true,
-      // },
     },
   },
 })
